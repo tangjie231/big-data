@@ -18,16 +18,14 @@ public class WordCount {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf().setAppName("word count");
         JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
-        JavaRDD<String> rdd = sparkContext.textFile("word.txt", 3);
+        JavaRDD<String> rdd = sparkContext.textFile("hdfs://192.168.1.11:9000/tangjie/index.html", 3);
 
         JavaPairRDD<String, Integer> rsRdd = rdd.flatMap(s -> Arrays.asList(s.split("\\S")))
                 .mapToPair(s -> new Tuple2<>(s, 1))
                 .reduceByKey((a, b) -> a + b);
-        rsRdd.saveAsTextFile("");
-
-        SQLContext sqlContext = new SQLContext(sparkContext);
-        DataFrameWriter dataFrameWriter = new DataFrameWriter(null);
-        dataFrameWriter.jdbc(null,null,null);
+         rsRdd.foreach(rs->{
+             System.out.println(rs._1+":"+rs._2);
+         });
 
     }
 }
